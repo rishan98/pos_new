@@ -338,13 +338,14 @@ class Cart extends Component {
                         />
                     </div>
                     <div className="order-product">
+                        
                         {products.map((p) => (
                             <div
                                 onClick={() => this.addProductToCart(p.barcode)}
                                 key={p.id}
                                 className="item"
                             >
-                                <img src={p.image_url} alt="" />
+                                <img src={p.image_url} alt={p.name} />
                                 <h5
                                     style={
                                         window.APP.warning_quantity > p.quantity

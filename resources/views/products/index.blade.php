@@ -31,7 +31,7 @@
                 <tr>
                     <td>{{$product->id}}</td>
                     <td>{{$product->name}}</td>
-                    <td><img class="product-img" src="{{ Storage::url($product->image) }}" alt=""></td>
+                    <td><img class="product-img" src="{{ asset($product->image) }}" alt=""></td>
                     <td>{{$product->barcode}}</td>
                     <td>{{$product->price}}</td>
                     <td>{{$product->quantity}}</td>

@@ -50,16 +50,20 @@ class ProductController extends Controller
      */
     public function store(ProductStoreRequest $request)
     {
-        $image_path = '';
+
+        $imageUrl = '';
 
         if ($request->hasFile('image')) {
-            $image_path = $request->file('image')->store('products', 'public');
+
+            $imageName = time() . '.' . $request->file('image')->extension();
+            $request->file('image')->move(public_path('images/products/'), $imageName);
+            $imageUrl = 'images/products/' . $imageName;
         }
 
         $product = Product::create([
             'name' => $request->name,
             'description' => $request->description,
-            'image' => $image_path,
+            'image' => $imageUrl,
             'barcode' => $request->barcode,
             'price' => $request->price,
             'quantity' => $request->quantity,
@@ -111,14 +115,10 @@ class ProductController extends Controller
         $product->status = $request->status;
 
         if ($request->hasFile('image')) {
-            // Delete old image
-            if ($product->image) {
-                Storage::delete($product->image);
-            }
-            // Store image
-            $image_path = $request->file('image')->store('products', 'public');
-            // Save to Database
-            $product->image = $image_path;
+            $imageName = time() . '.' . $request->file('image')->extension();
+            $request->file('image')->move(public_path('images/products/'), $imageName);
+            $imageUrl = 'images/products/' . $imageName;
+            $product->image = $imageUrl;
         }
 
         if (!$product->save()) {

@@ -24,7 +24,7 @@ class Product extends Model
     public function getImageUrl()
     {
         if ($this->image) {
-            return Storage::url($this->image);
+            return asset($this->image);
         }
         return asset('images/img-placeholder.jpg');
     }
