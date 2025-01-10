@@ -9,6 +9,15 @@
 <link rel="stylesheet" href="{{ asset('plugins/sweetalert2/sweetalert2.min.css') }}">
 @endsection
 @section('content')
+<div class="row">
+    <form action="{{ route('products.index')}}" method="get">
+        <div class="col-4 offset-8">
+            <div class="form-group">
+                <input type="text" name="searchKey" class="form-control" placeholder="Search by product name" value="{{$searchKey}}">
+            </div>
+        </div>
+    </form>
+</div>
 <div class="card product-list">
     <div class="card-body">
         <table class="table">
@@ -54,41 +63,45 @@
 @endsection
 
 @section('js')
-    <script src="{{ asset('plugins/sweetalert2/sweetalert2.min.js') }}"></script>
-    <script type="module">
-        $(document).ready(function() {
-            $(document).on('click', '.btn-delete', function() {
-                var $this = $(this);
-                const swalWithBootstrapButtons = Swal.mixin({
-                    customClass: {
-                        confirmButton: 'btn btn-success',
-                        cancelButton: 'btn btn-danger'
-                    },
-                    buttonsStyling: false
-                });
+<script src="{{ asset('plugins/sweetalert2/sweetalert2.min.js') }}"></script>
+<script type="module">
+    $(document).ready(function() {
+        $(document).on('click', '.btn-delete', function() {
+            var $this = $(this);
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+            });
 
-                swalWithBootstrapButtons.fire({
-                    title: '{{ __('product.sure') }}',
-                    text: '{{ __('product.really_delete') }}',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: '{{ __('product.yes_delete') }}',
-                    cancelButtonText: '{{ __('product.No') }}',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.post($this.data('url'), {
-                            _method: 'DELETE',
-                            _token: '{{ csrf_token() }}'
-                        }, function(res) {
-                            $this.closest('tr').fadeOut(500, function() {
-                                $(this).remove();
-                            });
+            swalWithBootstrapButtons.fire({
+                title: '{{ __('
+                product.sure ') }}',
+                text: '{{ __('
+                product.really_delete ') }}',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '{{ __('
+                product.yes_delete ') }}',
+                cancelButtonText: '{{ __('
+                product.No ') }}',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post($this.data('url'), {
+                        _method: 'DELETE',
+                        _token: '{{ csrf_token() }}'
+                    }, function(res) {
+                        $this.closest('tr').fadeOut(500, function() {
+                            $(this).remove();
                         });
-                    }
-                });
+                    });
+                }
             });
         });
-    </script>
+    });
+</script>
 
 @endsection

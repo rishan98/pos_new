@@ -8,11 +8,24 @@ use App\Http\Requests\ProductStoreRequest;
 use App\Http\Requests\ProductUpdateRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
+use App\Models\ProductInventory;
+use App\Models\ProductInventoryHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
+
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -22,9 +35,10 @@ class ProductController extends Controller
     {
         try {
 
+            $searchKey = request('searchKey');
             $products = Product::query();
 
-            $products->when($request->search, function ($query, $search) {
+            $products->when($request->searchKey, function ($query, $search) {
                 $query->where('name', 'LIKE', "%{$search}%");
             });
 
@@ -33,7 +47,7 @@ class ProductController extends Controller
             if (request()->wantsJson()) {
                 return ProductResource::collection($products);
             }
-            return view('products.index')->with('products', $products);
+            return view('products.index', compact('products', 'searchKey'));
         } catch (\Exception $e) {
 
             $error = $e->getMessage();
@@ -84,6 +98,17 @@ class ProductController extends Controller
                 'quantity' => $request->quantity,
                 'status' => $request->status
             ]);
+
+            $inventory = new ProductInventory();
+            $inventory->product_id = $product->id;
+            $inventory->save();
+
+            $inventory_history = new ProductInventoryHistory();
+            $inventory_history->product_id = $product->id;
+            $inventory_history->product_inventory_id = $inventory->id;
+            $inventory_history->order_id = null;
+            $inventory_history->operation = 0;
+            $inventory_history->save();
 
             if (!$product) {
                 return redirect()->back()->with('error', __('product.error_creating'));

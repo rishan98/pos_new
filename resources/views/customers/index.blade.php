@@ -9,6 +9,15 @@
 <link rel="stylesheet" href="{{ asset('plugins/sweetalert2/sweetalert2.min.css') }}">
 @endsection
 @section('content')
+<div class="row">
+    <form action="{{ route('customers.index')}}" method="get">
+        <div class="col-4 offset-8">
+            <div class="form-group">
+                <input type="text" name="searchKey" class="form-control" placeholder="Search by Customer name" value="{{$searchKey}}">
+            </div>
+        </div>
+    </form>
+</div>
 <div class="card">
     <div class="card-body">
         <table class="table">

@@ -16,7 +16,7 @@ class CustomerController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
             if (request()->wantsJson()) {
@@ -24,8 +24,14 @@ class CustomerController extends Controller
                     Customer::all()
                 );
             }
-            $customers = Customer::latest()->paginate(10);
-            return view('customers.index')->with('customers', $customers);
+
+            $searchKey = request('searchKey');
+
+            $customers = Customer::when($searchKey, function ($query, $searchKey) {
+                $query->where('first_name', 'like', "%$searchKey%");
+            })
+            ->latest()->paginate(10);
+            return view('customers.index', compact('customers', 'searchKey'));
 
         } catch (\Exception $e) {
 
