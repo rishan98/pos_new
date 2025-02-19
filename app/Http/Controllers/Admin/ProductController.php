@@ -96,7 +96,10 @@ class ProductController extends Controller
                 'barcode' => $request->barcode,
                 'price' => $request->price,
                 'quantity' => $request->quantity,
-                'status' => $request->status
+                'status' => $request->status,
+                'min_qty' => $request->min_qty,
+                'discount_type' => $request->discount_type,
+                'discount' => $request->discount
             ]);
 
             $inventory = new ProductInventory();
@@ -157,13 +160,22 @@ class ProductController extends Controller
      */
     public function update(ProductUpdateRequest $request, Product $product)
     {
+    
         try {
             $product->name = $request->name;
             $product->description = $request->description;
             $product->barcode = $request->barcode;
             $product->price = $request->price;
-            $product->quantity = $request->quantity;
+            $product->quantity = 1;
             $product->status = $request->status;
+            $product->minimum_quantity = $request->min_qty;
+            $product->discount_type = $request->discount_type;
+
+            if($request->discount_type == 0) {
+                $product->discount = 0;
+            } else {
+                $product->discount = $request->discount;
+            }
 
             if ($request->hasFile('image')) {
                 $imageName = time() . '.' . $request->file('image')->extension();

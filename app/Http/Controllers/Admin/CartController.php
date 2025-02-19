@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -9,85 +11,129 @@ class CartController extends Controller
 {
     public function index(Request $request)
     {
-        if ($request->wantsJson()) {
-            return response(
-                $request->user()->cart()->get()
-            );
-        }
-        return view('cart.index');
-    }
+        try {
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'barcode' => 'required|exists:products,barcode',
-        ]);
-        $barcode = $request->barcode;
+            $searchKey = request('searchKey');
 
-        $product = Product::where('barcode', $barcode)->first();
-        $cart = $request->user()->cart()->where('barcode', $barcode)->first();
-        if ($cart) {
-            // check product quantity
-            if ($product->quantity <= $cart->pivot->quantity) {
-                return response([
-                    'message' => __('cart.available', ['quantity' => $product->quantity]),
-                ], 400);
+            $products = Product::with('inventory')
+                ->whereHas('inventory', function ($query) {
+                    $query->where('master_quantity', '>', 0);
+                })
+                ->when($searchKey, function ($query, $searchKey) {
+                    $query->where('name', 'like', "%$searchKey%");
+                })
+                ->get();
+
+            if ($request->ajax()) {
+
+                $productListHtml = view('cart.product_list', compact('products'))->render();
+
+                return response()->json(['status' => true, 'productListHtml' => $productListHtml]);
             }
-            // update only quantity
-            $cart->pivot->quantity = $cart->pivot->quantity + 1;
-            $cart->pivot->save();
-        } else {
-            if ($product->quantity < 1) {
-                return response([
-                    'message' => __('cart.outstock'),
-                ], 400);
-            }
-            $request->user()->cart()->attach($product->id, ['quantity' => 1]);
+
+            return view('cart.index', compact('products'));
+        } catch (\Exception $ex) {
+
+            $error = $ex->getMessage();
+            return view('errors.error_500', compact('error'));
         }
-
-        return response('', 204);
     }
 
-    public function changeQty(Request $request)
+    public function searchCustomer(Request $request)
     {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1',
-        ]);
+        try {
 
-        $product = Product::find($request->product_id);
-        $cart = $request->user()->cart()->where('id', $request->product_id)->first();
+            $query = $request->input('query');
 
-        if ($cart) {
-            // check product quantity
-            if ($product->quantity < $request->quantity) {
-                return response([
-                    'message' => __('cart.available', ['quantity' => $product->quantity]),
-                ], 400);
-            }
-            $cart->pivot->quantity = $request->quantity;
-            $cart->pivot->save();
+            $customers = Customer::where('first_name', 'LIKE', "%$query%")
+                ->orWhere('last_name', 'LIKE', "%$query%")
+                ->take(10)
+                ->get(['id', 'first_name', 'last_name']);
+
+            return response()->json(['status' => true, 'customers' => $customers]);
+        } catch (\Exception $ex) {
+
+            $error = $ex->getMessage();
+            return response()->json(['status' => false]);
         }
-
-        return response([
-            'success' => true
-        ]);
     }
 
-    public function delete(Request $request)
+    public function verifyCustomer(Request $request)
     {
-        $request->validate([
-            'product_id' => 'required|integer|exists:products,id'
-        ]);
-        $request->user()->cart()->detach($request->product_id);
+        try {
 
-        return response('', 204);
+            $fullName = $request->input('customerName');
+            $firstName = explode(' ', $fullName)[0];
+            $lastName = explode(' ', $fullName)[1];
+
+            $customer = Customer::where('first_name', $firstName)
+                ->where('last_name', $lastName)
+                ->first();
+
+            if ($customer) {
+
+                return response()->json(['status' => true, 'customer' => $customer]);
+            } else {
+
+                return response()->json(['status' => false]);
+            }
+        } catch (\Exception $ex) {
+
+            $error = $ex->getMessage();
+            return response()->json(['status' => false]);
+        }
     }
 
-    public function empty(Request $request)
+    public function addProductToCart(Request $request)
     {
-        $request->user()->cart()->detach();
 
-        return response('', 204);
+        try {
+
+            $productId = $request->input('productId');
+
+            $product = Product::with('inventory')->find($productId);
+
+            if ($product) {
+
+                if ($product->inventory->master_quantity > 0) {
+                    return response()->json(['status' => true, 'product' => $product]);
+                } else {
+                    return response()->json(['status' => false, 'error' => 'Product out of stock']);
+                }
+            } else {
+                return response()->json(['status' => false, 'error' => 'Product not found']);
+            }
+        } catch (\Exception $ex) {
+
+            $error = $ex->getMessage();
+            return response()->json(['status' => false, 'error' => $error]);
+        }
+    }
+
+    public function searchBarcode(Request $request)
+    {
+
+        try {
+
+            $query = $request->input('searchKey');
+
+            $product = Product::with('inventory')
+                ->where('barcode', $query)
+                ->whereHas('inventory', function ($query) {
+                    $query->where('master_quantity', '>', 0);
+                })
+                ->first();
+
+            if($product) {
+                return response()->json(['status' => true, 'product' => $product]);
+            } else {
+                return response()->json(['status' => false, 'error' => 'Product not found']);
+            }
+
+        } catch (\Exception $ex) {
+
+            $error = $ex->getMessage();
+            return response()->json(['status' => false, 'error' => $error]);
+        }
     }
 }

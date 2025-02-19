@@ -24,7 +24,8 @@ class CustomerStoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|max:20',
+            'first_name' => 'required|string|max:20',
+            'last_name' => 'required|string|max:20',
             'email' => 'required|nullable|email',
             'phone' => 'required|nullable|string|max:20',
             'address' => 'nullable|string',

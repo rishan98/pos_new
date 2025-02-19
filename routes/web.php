@@ -47,6 +47,11 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::delete('/cart/delete', [CartController::class, 'delete']);
     Route::delete('/cart/empty', [CartController::class, 'empty']);
 
+    Route::get('/search-customers', [CartController::class, 'searchCustomer'])->name('customers.search');
+    Route::get('/verify-customer', [CartController::class, 'verifyCustomer'])->name('customers.verify');
+    Route::get('/add-to-cart', [CartController::class, 'addProductToCart'])->name('product.add-to-cart');
+    Route::get('/search-barcode', [CartController::class, 'searchBarcode'])->name('product.search-barcode');
+
     // Transaltions route for React component
     Route::get('/locale/{type}', function ($type) {
         $translations = trans($type);

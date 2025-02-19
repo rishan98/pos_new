@@ -14,7 +14,10 @@ class Product extends Model
         'barcode',
         'price',
         'quantity',
-        'status'
+        'status',
+        'minimum_quantity',
+        'discount_type',
+        'discount'
     ];
 
     protected $casts = [
@@ -27,5 +30,9 @@ class Product extends Model
             return asset($this->image);
         }
         return asset('images/img-placeholder.jpg');
+    }
+
+    public function inventory() {
+        return $this->hasOne(ProductInventory::class);
     }
 }

@@ -24,14 +24,27 @@ class ProductStoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:products',
             'description' => 'nullable|string',
             'image' => 'nullable|image',
             'barcode' => 'required|string|max:50|unique:products',
             'price' => 'required|regex:/^\d+(\.\d{1,2})?$/',
-            'quantity' => 'required|integer',
+            // 'quantity' => 'required|integer',
             'status' => 'required|boolean',
-
+            'min_qty' => 'required|integer|min:1',
+            'discount_type' => 'required|in:0,1,2',
+            'discount' => [
+                'nullable',
+                'numeric',
+                'min:0',
+                function ($attribute, $value, $fail) {
+                    if (request()->discount_type == 1 || request()->discount_type == 2) {
+                        if ($value === null || $value === '') {
+                            $fail('The discount field is required when Fixed or Percentage is selected.');
+                        }
+                    }
+                },
+            ],
         ];
     }
 }

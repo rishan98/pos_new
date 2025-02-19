@@ -11,15 +11,32 @@
         <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
-            <div class="form-group">
-                <label for="name">{{ __('product.Name') }}</label>
-                <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" id="name"
-                    placeholder="{{ __('product.Name') }}" value="{{ old('name') }}">
-                @error('name')
-                <span class="invalid-feedback" role="alert">
-                    <strong>{{ $message }}</strong>
-                </span>
-                @enderror
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="name">{{ __('product.Name') }}</label>
+                        <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" id="name"
+                            placeholder="{{ __('product.Name') }}" value="{{ old('name') }}">
+                        @error('name')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="barcode">{{ __('product.Barcode') }}</label>
+                        <input type="text" name="barcode" class="form-control @error('barcode') is-invalid @enderror"
+                            id="barcode" placeholder="{{ __('product.Barcode') }}" value="{{ old('barcode') }}">
+                        @error('barcode')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                    </div>
+                </div>
             </div>
 
 
@@ -47,63 +64,94 @@
                 @enderror
             </div>
 
-            <div class="form-group">
-                <label for="barcode">{{ __('product.Barcode') }}</label>
-                <input type="text" name="barcode" class="form-control @error('barcode') is-invalid @enderror"
-                    id="barcode" placeholder="{{ __('product.Barcode') }}" value="{{ old('barcode') }}">
-                @error('barcode')
-                <span class="invalid-feedback" role="alert">
-                    <strong>{{ $message }}</strong>
-                </span>
-                @enderror
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="price">{{ __('product.Price') }}</label>
+                        <input type="number" name="price" class="form-control @error('price') is-invalid @enderror" id="price"
+                            placeholder="{{ __('product.Price') }}" value="{{ old('price') }}">
+                        @error('price')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="min_qty">Minimum Quantity</label>
+                        <input type="number" name="min_qty" class="form-control @error('min_qty') is-invalid @enderror" id="min_qty"
+                            placeholder="Minimum Quantity" value="1">
+                        @error('min_qty')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="status">{{ __('product.Status') }}</label>
+                        <select name="status" class="form-control @error('status') is-invalid @enderror" id="status">
+                            <option value="1" {{ old('status') === 1 ? 'selected' : ''}}>{{ __('common.Active') }}</option>
+                            <option value="0" {{ old('status') === 0 ? 'selected' : ''}}>{{ __('common.Inactive') }}</option>
+                        </select>
+                        @error('status')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="price">{{ __('product.Price') }}</label>
-                <input type="text" name="price" class="form-control @error('price') is-invalid @enderror" id="price"
-                    placeholder="{{ __('product.Price') }}" value="{{ old('price') }}">
-                @error('price')
-                <span class="invalid-feedback" role="alert">
-                    <strong>{{ $message }}</strong>
-                </span>
-                @enderror
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="discount_type">Discount Type</label>
+                        <select name="discount_type" class="form-control @error('discount_type') is-invalid @enderror" id="discount_type" onchange="handleDiscountChange(this)">
+                            <option value="0" {{ old('discount_type') === 0 ? 'selected' : ''}}>None</option>
+                            <option value="1" {{ old('discount_type') === 1 ? 'selected' : ''}}>Fixed</option>
+                            <option value="2" {{ old('discount_type') === 2 ? 'selected' : ''}}>Percentage</option>
+                        </select>
+                        @error('discount_type')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group d-none" id="discount_value_div">
+                        <label for="discount">Discount</label>
+                        <input type="number" name="discount" class="form-control @error('discount') is-invalid @enderror" id="discount"
+                            placeholder="Discount" value="{{ old('discount') }}">
+                        @error('discount')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group">
+            {{--<div class="form-group">
                 <label for="quantity">{{ __('product.Quantity') }}</label>
-                <input type="text" name="quantity" class="form-control @error('quantity') is-invalid @enderror"
-                    id="quantity" placeholder="{{ __('product.Quantity') }}" value="{{ old('quantity', 1) }}">
-                @error('quantity')
-                <span class="invalid-feedback" role="alert">
-                    <strong>{{ $message }}</strong>
-                </span>
-                @enderror
-            </div>
+            <input type="text" name="quantity" class="form-control @error('quantity') is-invalid @enderror"
+                id="quantity" placeholder="{{ __('product.Quantity') }}" value="{{ old('quantity', 1) }}">
+            @error('quantity')
+            <span class="invalid-feedback" role="alert">
+                <strong>{{ $message }}</strong>
+            </span>
+            @enderror
+    </div>--}}
 
-            <div class="form-group">
-                <label for="status">{{ __('product.Status') }}</label>
-                <select name="status" class="form-control @error('status') is-invalid @enderror" id="status">
-                    <option value="1" {{ old('status') === 1 ? 'selected' : ''}}>{{ __('common.Active') }}</option>
-                    <option value="0" {{ old('status') === 0 ? 'selected' : ''}}>{{ __('common.Inactive') }}</option>
-                </select>
-                @error('status')
-                <span class="invalid-feedback" role="alert">
-                    <strong>{{ $message }}</strong>
-                </span>
-                @enderror
-            </div>
-
-            <button class="btn btn-primary" type="submit">{{ __('common.Create') }}</button>
-        </form>
-    </div>
+    <button class="btn btn-primary" type="submit">{{ __('common.Create') }}</button>
+    </form>
 </div>
-@endsection
-
-@section('js')
-<script src="{{ asset('plugins/bs-custom-file-input/bs-custom-file-input.min.js') }}"></script>
-<script>
-    $(document).ready(function () {
-        bsCustomFileInput.init();
-    });
-</script>
+</div>
 @endsection
