@@ -70,7 +70,7 @@
                     @enderror
                 </div>
 
-                <div class="form-group">
+                {{--<div class="form-group">
                     <label for="avatar">{{ __('customer.Avatar') }}</label>
                     <div class="custom-file">
                         <input type="file" class="custom-file-input" name="avatar" id="avatar">
@@ -81,7 +81,7 @@
                     <strong>{{ $message }}</strong>
                 </span>
                     @enderror
-                </div>
+                </div>--}}
 
 
                 <button class="btn btn-primary" type="submit">Update</button>

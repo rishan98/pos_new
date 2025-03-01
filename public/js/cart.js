@@ -9,7 +9,6 @@ $(document).ready(function () {
                     query: query,
                 },
                 success: function (data) {
-                    console.log(data);
                     let suggestions = "";
                     if (data.customers.length > 0) {
                         data.customers.forEach(function (customer) {
@@ -84,16 +83,34 @@ function verifyCustomer() {
         },
         success: function (data) {
             if (data.status) {
-                $("#customer-name-text").text(
-                    data.customer.first_name + " " + data.customer.last_name
+                $("#search-customer").val("");
+                $("#customer-name-text").html(
+                    data.customer.first_name +
+                        " " +
+                        data.customer.last_name +
+                        ' <button type="button" class="btn btn-sm btn-danger ml-2" id="remove-customer" onclick="removeSelectedCustomer()">Remove</button>'
                 );
-                $("#verified-customer-id").val(data.customer.id);
+                $("#verified_customer_id").val(data.customer.id);
             } else {
                 $("#customer-name-text").text("No valid Customer Selected");
-                $("#verified-customer-id").val("");
+                $("#verified_customer_id").val("");
             }
         },
     });
+}
+
+function removeSelectedCustomer() {
+    $("#customer-name-text").html("No Selected Customer");
+    $("#verified_customer_id").val("");
+}
+
+function updateCheckoutButton() {
+    const checkoutBtn = document.getElementById("checkout-btn");
+    const hasItems =
+        document.querySelectorAll("#product-table-body tr").length > 0;
+
+    // Enable if there are items, otherwise disable
+    checkoutBtn.disabled = !hasItems;
 }
 
 // Function to add a product to the cart
@@ -101,9 +118,7 @@ function addProductToCart(productId) {
     $.ajax({
         url: "/admin/add-to-cart",
         type: "GET",
-        data: {
-            productId: productId,
-        },
+        data: { productId: productId },
         success: function (data) {
             if (data.status) {
                 const tbody = document.getElementById("product-table-body");
@@ -111,13 +126,15 @@ function addProductToCart(productId) {
 
                 // Check if the product already exists in the table
                 const existingRow = [...tbody.rows].find(
-                    (row) => row.cells[0].innerText === selectedProduct.name
+                    (row) => row.cells[0].dataset.productId === selectedProduct.id.toString()
                 );
 
                 if (existingRow) {
-                    // If the product exists, increment the quantity
                     const qtyInput = existingRow.querySelector(".qty");
                     const priceElement = existingRow.querySelector(".price");
+                    const discountElement =
+                        existingRow.querySelector(".discount");
+
                     qtyInput.value = parseInt(qtyInput.value) + 1;
 
                     if (
@@ -131,21 +148,32 @@ function addProductToCart(productId) {
                                 selectedProduct.inventory.master_quantity
                         );
                     }
-                    priceElement.innerText = `Rs ${
-                        selectedProduct.price * parseInt(qtyInput.value)
-                    }`;
 
-                    // Add validation on quantity input change
+                    priceElement.innerText = (
+                        selectedProduct.price * parseInt(qtyInput.value)
+                    ).toFixed(2);
+                    discountElement.innerText = (
+                        selectedProduct.discount_value *
+                        parseInt(qtyInput.value)
+                    ).toFixed(2);
+
                     qtyInput.addEventListener("input", function () {
                         validateQuantity(qtyInput, selectedProduct);
+                        updateTotals();
+                        updateCheckoutButton(); // Check checkout button state on quantity change
                     });
                 } else {
-                    // If the product does not exist, create a new row
+                    const maxLength = 20;
+                    const productName = selectedProduct.name.length > maxLength 
+                        ? selectedProduct.name.slice(0, maxLength) + '...' 
+                        : selectedProduct.name;
                     const row = document.createElement("tr");
                     row.innerHTML = `
-                        <td>
-                            <input type="hidden" name="products[]" value="${selectedProduct.id}">
-                            ${selectedProduct.name}
+                        <td data-product-id="${selectedProduct.id}">
+                            <input type="hidden" name="products[]" value="${
+                                selectedProduct.id
+                            }">
+                            ${productName}
                         </td>
                         <td>
                             <input type="number" name="quantities[]" class="form-control form-control-sm qty w-25 ms-5" value="1">
@@ -153,29 +181,83 @@ function addProductToCart(productId) {
                                 <i class="fas fa-trash"></i>
                             </button>
                         </td>
-                        <td class="text-end price">Rs ${selectedProduct.price}</td>
+                        <td class="discount">${selectedProduct.discount_value.toFixed(
+                            2
+                        )}</td>
+                        <td class="text-end price">${selectedProduct.price.toFixed(
+                            2
+                        )}</td>
                     `;
+
+                    const hiddenDiscount = document.createElement("input");
+                    hiddenDiscount.type = "hidden";
+                    hiddenDiscount.name = "discount[]";
+                    hiddenDiscount.value = selectedProduct.discount_value;
+                    row.appendChild(hiddenDiscount);
+
+                    const hiddenPrice = document.createElement("input");
+                    hiddenPrice.type = "hidden";
+                    hiddenPrice.name = "price[]";
+                    hiddenPrice.value = selectedProduct.price;
+                    row.appendChild(hiddenPrice);
+                    
                     tbody.appendChild(row);
 
-                    // Add event listener to the delete button
                     row.querySelector(".delete-btn").addEventListener(
                         "click",
                         function () {
                             row.remove();
+                            updateTotals();
+                            updateCheckoutButton(); // Check checkout button state after deleting item
                         }
                     );
 
-                    // Add validation on quantity input change
                     const qtyInput = row.querySelector(".qty");
                     qtyInput.addEventListener("input", function () {
                         validateQuantity(qtyInput, selectedProduct);
+                        updateTotals();
+                        updateCheckoutButton(); // Check checkout button state on quantity change
                     });
                 }
+
+                updateTotals();
+                updateCheckoutButton(); // Check checkout button state after adding item
             } else {
                 alert(data.error);
             }
         },
     });
+}
+
+function updateTotals() {
+    let subTotal = 0;
+    let totalDiscount = 0;
+    let totalAmount = 0;
+
+    document.querySelectorAll("#product-table-body tr").forEach((row) => {
+        const qty = parseInt(row.querySelector(".qty").value);
+        const price = parseFloat(row.querySelector(".price").innerText);
+        const discount = parseFloat(row.querySelector(".discount").innerText);
+
+        subTotal += price;
+        totalDiscount += discount;
+    });
+
+    totalAmount = subTotal - totalDiscount;
+
+    // Update the total amount and total discount in the UI
+    document.getElementById("sub-total").innerText =
+        "Rs." + subTotal.toFixed(2);
+    document.getElementById("total-discount").innerText =
+        "Rs." + totalDiscount.toFixed(2);
+    document.getElementById("total-amount").innerText =
+        "Rs." + totalAmount.toFixed(2);
+
+    // Update the hidden input fields
+    document.getElementById("hidden-total-amount").value =
+    totalAmount.toFixed(2);
+    document.getElementById("hidden-total-discount").value =
+        totalDiscount.toFixed(2);
 }
 
 function validateQuantity(qtyInput, product) {
@@ -195,8 +277,13 @@ function validateQuantity(qtyInput, product) {
     // Update the price based on the adjusted quantity
     const row = qtyInput.closest("tr");
     const priceElement = row.querySelector(".price");
-    priceElement.innerText = `Rs ${(
+    const discountElement = row.querySelector(".discount");
+    priceElement.innerText = `${(
         product.price * parseInt(qtyInput.value)
+    ).toFixed(2)}`;
+
+    discountElement.innerText = `${(
+        product.discount_value * parseInt(qtyInput.value)
     ).toFixed(2)}`;
 }
 
@@ -219,3 +306,64 @@ function searchBarcode() {
         },
     });
 }
+
+document.getElementById("checkout-btn").addEventListener("click", function () {
+    if (!this.disabled) {
+        // Update modal values
+        document.getElementById("modal-total-amount").innerText =
+            document.getElementById("total-amount").innerText;
+
+        // Show the Bootstrap modal
+        var myModal = new bootstrap.Modal(
+            document.getElementById("checkoutModal"),
+            {
+                keyboard: false,
+            }
+        );
+        myModal.show();
+    }
+});
+
+function clearCart() {
+    document.getElementById("product-table-body").innerHTML = "";
+    document.getElementById("total-amount").innerText = "Rs. 0.00";
+    document.getElementById("total-discount").innerText = "Rs. 0.00";
+    document.getElementById("sub-total").innerText = "Rs. 0.00";
+    updateCheckoutButton(); // Disable checkout button
+}
+
+updateCheckoutButton();
+
+document
+    .getElementById("confirm-checkout")
+    .addEventListener("click", function () {
+        // Get selected payment status
+        const paymentStatus = document.getElementById("payment_status").value;
+        document.getElementById("hidden-payment-status").value = paymentStatus;
+
+        // Get the entered paid amount (only if "Partially Paid" is selected)
+        if (paymentStatus === "1") {
+            const paidAmount = document.getElementById(
+                "partial_payment_amount"
+            ).value;
+            document.getElementById("hidden-paid-amount").value = paidAmount;
+        } else {
+            document.getElementById("hidden-paid-amount").value = 0;
+        }
+
+        // Submit the form
+        document.getElementById("order-form").submit();
+    });
+
+document
+    .getElementById("payment_status")
+    .addEventListener("change", function () {
+        const partialPaymentContainer = document.getElementById(
+            "partial-payment-container"
+        );
+        if (this.value === "1") {
+            partialPaymentContainer.style.display = "block";
+        } else {
+            partialPaymentContainer.style.display = "none";
+        }
+    });

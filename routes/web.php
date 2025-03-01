@@ -27,7 +27,10 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::post('/settings', [SettingController::class, 'store'])->name('settings.store');
     Route::resource('products', ProductController::class);
     Route::resource('customers', CustomerController::class);
-    Route::resource('orders', OrderController::class);
+
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::post('/order-save', [OrderController::class, 'store'])->name('orders.store');
+    Route::get('/order-details/{id}', [OrderController::class, 'orderDetails'])->name('orders.orderDetails');
 
     // Inventory
     Route::get('/product-inventory', [ProductInventoryController::class, 'index'])->name('inventory.index');

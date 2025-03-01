@@ -9,7 +9,7 @@
             <!-- small box -->
             <div class="small-box bg-info">
               <div class="inner">
-                  <h3>{{$orders_count}}</h3>
+                  <h3>{{$orderCount}}</h3>
                 <p>{{ __('dashboard.Orders_Count') }}</p>
               </div>
               <div class="icon">
@@ -23,7 +23,7 @@
             <!-- small box -->
             <div class="small-box bg-success">
               <div class="inner">
-                  <h3>{{config('settings.currency_symbol')}} {{number_format($income, 2)}}</h3>
+                  <h3>{{config('settings.currency_symbol')}} {{number_format($totalAmount, 2)}}</h3>
                 <p>{{ __('dashboard.Income') }}</p>
               </div>
               <div class="icon">
@@ -37,14 +37,14 @@
             <!-- small box -->
             <div class="small-box bg-danger">
               <div class="inner">
-                <h3>{{config('settings.currency_symbol')}} {{number_format($income_today, 2)}}</h3>
+                <h3>{{$products_count}}</h3>
 
-                <p>{{ __('dashboard.Income_Today') }}</p>
+                <p>Total Products</p>
               </div>
               <div class="icon">
                 <i class="ion ion-pie-graph"></i>
               </div>
-              <a href="{{route('orders.index')}}" class="small-box-footer">{{ __('common.More_info') }} <i class="fas fa-arrow-circle-right"></i></a>
+              <a href="{{route('products.index')}}" class="small-box-footer">{{ __('common.More_info') }} <i class="fas fa-arrow-circle-right"></i></a>
             </div>
           </div>
           <!-- ./col -->

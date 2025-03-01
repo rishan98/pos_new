@@ -22,6 +22,7 @@ class CartController extends Controller
                 ->when($searchKey, function ($query, $searchKey) {
                     $query->where('name', 'like', "%$searchKey%");
                 })
+                ->where('status', 1)
                 ->get();
 
             if ($request->ajax()) {
@@ -95,7 +96,21 @@ class CartController extends Controller
 
             if ($product) {
 
-                if ($product->inventory->master_quantity > 0) {
+                if ($product->inventory->master_quantity > 0 && $product->inventory->master_quantity >= $product->minimum_quantity) {
+
+                    $discount_value  = 0.00;
+
+                    if($product->discount_type == 0 || $product->discount_type == 1) {
+                        $discount_value = (float)$product->discount;
+                        
+                    } else {
+                        $discount_value = $product->price * $product->discount / 100;
+                    }
+
+                    $product->discounted_price = (float)$product->price - (float)$discount_value;
+                    $product->price = (float)$product->price;
+                    $product->discount_value = (float)$discount_value;
+
                     return response()->json(['status' => true, 'product' => $product]);
                 } else {
                     return response()->json(['status' => false, 'error' => 'Product out of stock']);
@@ -122,6 +137,7 @@ class CartController extends Controller
                 ->whereHas('inventory', function ($query) {
                     $query->where('master_quantity', '>', 0);
                 })
+                ->where('status', 1)
                 ->first();
 
             if($product) {

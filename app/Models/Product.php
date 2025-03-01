@@ -17,7 +17,8 @@ class Product extends Model
         'status',
         'minimum_quantity',
         'discount_type',
-        'discount'
+        'discount',
+        'discount_value'
     ];
 
     protected $casts = [

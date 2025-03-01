@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Order;
 use App\Models\Customer;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -27,25 +28,20 @@ class HomeController extends Controller
     public function index()
     {
         try {
-            $orders = Order::with(['items', 'payments'])->get();
+
+            $orderStats = Order::whereIn('return_status', [0, 1])
+                ->selectRaw('COUNT(*) as count, SUM(paid_amount) as total_amount')
+                ->first();
+
+            $orderCount = $orderStats->count;
+            $totalAmount = $orderStats->total_amount;
+
             $customers_count = Customer::count();
-    
-            return view('home', [
-                'orders_count' => $orders->count(),
-                'income' => $orders->map(function($i) {
-                    if($i->receivedAmount() > $i->total()) {
-                        return $i->total();
-                    }
-                    return $i->receivedAmount();
-                })->sum(),
-                'income_today' => $orders->where('created_at', '>=', date('Y-m-d').' 00:00:00')->map(function($i) {
-                    if($i->receivedAmount() > $i->total()) {
-                        return $i->total();
-                    }
-                    return $i->receivedAmount();
-                })->sum(),
-                'customers_count' => $customers_count
-            ]);
+
+            $products_count = Product::count();
+
+            return view('home', compact('orderCount', 'totalAmount', 'customers_count', 'products_count'));
+
         } catch (\Exception $e) {
             
             $error = $e->getMessage();

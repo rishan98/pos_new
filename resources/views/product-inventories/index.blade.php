@@ -35,6 +35,7 @@
                     <td>{{$inventory->reserved_quantity}}</td>
                     <td>{{$inventory->removed_quantity}}</td>
                     <td>
+                        @include('product-inventories.view_product_details')
                         @include('product-inventories.edit_inventory')
                         @include('product-inventories.product_history')
                     </td>

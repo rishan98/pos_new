@@ -79,6 +79,7 @@ class ProductController extends Controller
      */
     public function store(ProductStoreRequest $request)
     {
+        // dd($request->all());
         try {
             $imageUrl = '';
 
@@ -89,17 +90,33 @@ class ProductController extends Controller
                 $imageUrl = 'images/products/' . $imageName;
             }
 
+            $discount_value = 0.00;
+
+            if($request->discount_type == 0) {
+                $discount_value = 0.00;
+            }
+
+            if($request->discount_type == 1) {
+                $discount_value = $request->discount;
+            }
+
+            if($request->discount_type == 2) {
+                $discount_value = $request->price * $request->discount / 100;
+            }
+
             $product = Product::create([
                 'name' => $request->name,
                 'description' => $request->description,
                 'image' => $imageUrl,
                 'barcode' => $request->barcode,
                 'price' => $request->price,
-                'quantity' => $request->quantity,
+                'quantity' => 1,
                 'status' => $request->status,
-                'min_qty' => $request->min_qty,
+                // 'minimum_quantity' => $request->min_qty,
+                'minimum_quantity' => 1,
                 'discount_type' => $request->discount_type,
-                'discount' => $request->discount
+                'discount' => $request->discount_type == 0 ? 0 : $request->discount,
+                'discount_value' => $discount_value
             ]);
 
             $inventory = new ProductInventory();
@@ -162,14 +179,31 @@ class ProductController extends Controller
     {
     
         try {
+
+            $discount_value = 0.00;
+
+            if($request->discount_type == 0) {
+                $discount_value = 0.00;
+            }
+
+            if($request->discount_type == 1) {
+                $discount_value = $request->discount;
+            }
+
+            if($request->discount_type == 2) {
+                $discount_value = $request->price * $request->discount / 100;
+            }
+
             $product->name = $request->name;
             $product->description = $request->description;
             $product->barcode = $request->barcode;
             $product->price = $request->price;
             $product->quantity = 1;
             $product->status = $request->status;
-            $product->minimum_quantity = $request->min_qty;
+            // $product->minimum_quantity = $request->min_qty;
+            $product->minimum_quantity = 1;
             $product->discount_type = $request->discount_type;
+            $product->discount_value = $discount_value;
 
             if($request->discount_type == 0) {
                 $product->discount = 0;

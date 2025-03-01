@@ -27,9 +27,9 @@
 
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="barcode">{{ __('product.Barcode') }}</label>
+                        <label for="barcode">Product Code</label>
                         <input type="text" name="barcode" class="form-control @error('barcode') is-invalid @enderror"
-                            id="barcode" placeholder="{{ __('product.Barcode') }}" value="{{ old('barcode') }}">
+                            id="barcode" placeholder="Product Code" value="{{ old('barcode') }}">
                         @error('barcode')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
@@ -79,7 +79,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                {{--<div class="col-md-4">
                     <div class="form-group">
                         <label for="min_qty">Minimum Quantity</label>
                         <input type="number" name="min_qty" class="form-control @error('min_qty') is-invalid @enderror" id="min_qty"
@@ -90,7 +90,7 @@
                         </span>
                         @enderror
                     </div>
-                </div>
+                </div>--}}
 
                 <div class="col-md-4">
                     <div class="form-group">

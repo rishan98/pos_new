@@ -10,7 +10,9 @@ class OrderItem extends Model
         'price',
         'quantity',
         'product_id',
-        'order_id'
+        'order_id',
+        'discount',
+        'is_return'
     ];
 
     public function product()

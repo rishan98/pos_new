@@ -58,19 +58,19 @@
                         <p>{{ __('customer.title') }}</p>
                     </a>
                 </li>
-                <li class="nav-item has-treeview">
+                {{--<li class="nav-item has-treeview">
                     <a href="{{ route('suppliers.index') }}" class="nav-link {{ activeSegment('suppliers') }}">
                         <i class="nav-icon fas fa-users"></i>
                         <p>{{ __('supplier.title') }}</p>
                     </a>
-                </li>
+                </li>--}}
                 <li class="nav-item has-treeview">
                     <a href="{{ route('settings.index') }}" class="nav-link {{ activeSegment('settings') }}">
                         <i class="nav-icon fas fa-cogs"></i>
                         <p>{{ __('settings.title') }}</p>
                     </a>
                 </li>
-                <li class="nav-item">
+                {{--<li class="nav-item">
                     <a href="#" class="nav-link" onclick="document.getElementById('logout-form').submit()">
                         <i class="nav-icon fas fa-sign-out-alt"></i>
                         <p>{{ __('common.Logout') }}</p>
@@ -78,7 +78,7 @@
                             @csrf
                         </form>
                     </a>
-                </li>
+                </li>--}}
             </ul>
         </nav>
         <!-- /.sidebar-menu -->

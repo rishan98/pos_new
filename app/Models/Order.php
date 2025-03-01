@@ -8,12 +8,18 @@ class Order extends Model
 {
     protected $fillable = [
         'customer_id',
-        'user_id'
+        'user_id',
+        'order_number',
+        'total_amount',
+        'total_discount',
+        'payment_status',
+        'paid_amount',
+        'return_status'
     ];
 
     public function items()
     {
-        return $this->hasMany(OrderItem::class);
+        return $this->hasMany(OrderItem::class)->with('product');
     }
 
     public function payments()

@@ -5,7 +5,7 @@
 
 <!-- Modal -->
 <div class="modal fade" id="{{'inventory-history-modal-'.$inventory->id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Product Inventory - {{ $inventory->product->name }}</h5>
@@ -17,6 +17,7 @@
                         <tr>
                             <th>Updated At</th>
                             <th>Quantity</th>
+                            <th>Running Quantity</th>
                             <th>Action</th>
 
                         </tr>
@@ -26,6 +27,7 @@
                         <tr>
                             <td>{{$history->updated_at}}</td>
                             <td>{{$history->quantity}}</td>
+                            <td>{{$history->running_quantity}}</td>
                             @if($history->operation == 0)
                             <td>Initial</td>
                             @elseif($history->operation == 1)

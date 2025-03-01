@@ -27,9 +27,9 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="barcode">{{ __('product.Barcode') }}</label>
+                        <label for="barcode">Product Code</label>
                         <input type="text" name="barcode" class="form-control @error('barcode') is-invalid @enderror"
-                            id="barcode" placeholder="{{ __('product.Barcode') }}" value="{{ old('barcode', $product->barcode) }}">
+                            id="barcode" placeholder="Product Code" value="{{ old('barcode', $product->barcode) }}">
                         @error('barcode')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
@@ -77,7 +77,7 @@
                         @enderror
                     </div>
                 </div>
-                <div class="col-md-4">
+                {{--<div class="col-md-4">
                     <div class="form-group">
                         <label for="min_qty">Minimum Quantity</label>
                         <input type="number" name="min_qty" class="form-control @error('min_qty') is-invalid @enderror" id="min_qty"
@@ -88,13 +88,13 @@
                         </span>
                         @enderror
                     </div>
-                </div>
+                </div>--}}
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="status">{{ __('product.Status') }}</label>
                         <select name="status" class="form-control @error('status') is-invalid @enderror" id="status">
-                            <option value="1" {{ old('status', $product->status) === 1 ? 'selected' : ''}}>{{ __('common.Active') }}</option>
-                            <option value="0" {{ old('status', $product->status) === 0 ? 'selected' : ''}}>{{ __('common.Inactive') }}</option>
+                            <option value="1" {{ $product->status == 1 ? 'selected' : ''}}>{{ __('common.Active') }}</option>
+                            <option value="0" {{ $product->status == 0 ? 'selected' : ''}}>{{ __('common.Inactive') }}</option>
                         </select>
                         @error('status')
                         <span class="invalid-feedback" role="alert">
