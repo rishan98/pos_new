@@ -1,3 +1,4 @@
+export TERM=xterm
 set -e
 
 echo "Starting deployment..."
