@@ -10,7 +10,7 @@
 @endsection
 
 @section('content')
-<p class="login-box-msg">Sign in to start your session 11</p>
+<p class="login-box-msg">Sign in to start your session 1</p>
 
 <form action="{{ route('login') }}" method="post">
     @csrf
