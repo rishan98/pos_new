@@ -5,6 +5,8 @@ echo "Starting deployment..."
 
 (php artisan down) || true
 
+git reset --hard
+git clean -fd
 git pull origin main
 
 composer install --optimize-autoloader --no-dev --no-interaction
